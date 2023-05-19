@@ -11,7 +11,7 @@ Note The LinkedIn Job Applications will automatically track easy applied jobs. H
 3. Select the CSV file that contains your job application data.
 4. The data will be uploaded, processed, and displayed in the "LinkedIn Job Application Tracker" page.
 
-## Streamlit App Dashboard
+## Streamlit App
 
 [Dashboard Link](https://vishakbaburaj-linkedin-jobs-tracker.streamlit.app/)
 
