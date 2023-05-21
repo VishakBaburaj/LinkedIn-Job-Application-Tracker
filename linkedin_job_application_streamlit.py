@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from linkedin_job_application_analysis import process_linkedin_job_app_data, display_kpis, display_top_10_insights, display_daily_weekly_monthly_insights
 import datetime
+from streamlit_option_menu import option_menu
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -14,11 +15,17 @@ st.set_page_config(page_title = 'LinkedIn Job Application Tracker',
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setting the sidebar options
-options = ['About','LinkedIn Job Application Tracker']
-selected_option = st.sidebar.selectbox('Select an option', options)
+with st.sidebar:
+    selected_option = option_menu(
+        menu_title = None,
+        options = ['About', 'Application Tracker'],
+        icons=['house', 'briefcase'],
+        menu_icon='cast',
+        default_index=0
+    )
 
-st.sidebar.write("\n\n\n")
-st.sidebar.write("\n\n\n")
+# st.sidebar.write("\n\n\n")
+# st.sidebar.write("\n\n\n")
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -39,7 +46,7 @@ if selected_option == 'About':
     st.write('''**Note** The LinkedIn Job Applications will automatically track easy applied jobs. However, to
                 track applications that you apply for on external career websites or job boards through LinkedIn, 
                 you will need to manually mark them as "Applied".
-                \n 1. Go to the "LinkedIn Job Application Tracker" page.
+                \n 1. Go to the "Application Tracker" page.
                 \n 2. Click on the "Browse files" button.
                 \n 3. Select the CSV file that contains your job application data.
                 \n 4. The data will be uploaded, processed, and displayed in the "LinkedIn Job Application Tracker" page.''')
@@ -60,7 +67,7 @@ if selected_option == 'About':
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # If the selected option is "LinkedIn", display the "LinkedIn Job Application Tracker" page
-elif selected_option == 'LinkedIn Job Application Tracker':
+elif selected_option == 'Application Tracker':
 
     # Setting title of the page
     st.markdown('## LinkedIn Job Application Tracker')
@@ -104,7 +111,6 @@ elif selected_option == 'LinkedIn Job Application Tracker':
         # Determining the earliest date in the data
         min_date = data['Date'].min().date()
 
-        # Adding a date filter
         start_date = st.sidebar.date_input("Select start date", value=min_date)
         end_date = st.sidebar.date_input("Select end date")
 
