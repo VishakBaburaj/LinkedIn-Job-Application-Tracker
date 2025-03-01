@@ -7,7 +7,7 @@ from streamlit_option_menu import option_menu
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Setting the page title and layout
+# Setting the page title and layout (make sure this is the first Streamlit command)
 st.set_page_config(page_title = 'LinkedIn Job Application Tracker',
                    page_icon=None,
                    layout = 'centered', initial_sidebar_state="auto")
@@ -23,9 +23,6 @@ with st.sidebar:
         menu_icon='cast',
         default_index=0
     )
-
-# st.sidebar.write("\n\n\n")
-# st.sidebar.write("\n\n\n")
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -66,7 +63,7 @@ if selected_option == 'About':
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# If the selected option is "LinkedIn", display the "LinkedIn Job Application Tracker" page
+# If the selected option is "Application Tracker", display the "LinkedIn Job Application Tracker" page
 elif selected_option == 'Application Tracker':
 
     # Setting title of the page
@@ -79,59 +76,61 @@ elif selected_option == 'Application Tracker':
     load_sample_data_checkbox = st.sidebar.checkbox('Load Sample Data')
 
     # Reading sample csv data
-    df = pd.read_csv("sample_data.csv") 
-
-    # If the sample data checkbox is selected upload the sample data
     if load_sample_data_checkbox:
-        uploaded_file = df  # Display the sample data in the app
+        df = pd.read_csv("sample_data.csv")  # Assuming sample_data.csv is in the same directory.
 
-    # If the sample data checkbox is not selected upload the csv data
-    elif uploaded_file := st.sidebar.file_uploader('Choose the Job Application CSV file', type = 'csv'):
+    # If the sample data checkbox is not selected, prompt for CSV upload
+    uploaded_file = None
+    if not load_sample_data_checkbox:
+        uploaded_file = st.sidebar.file_uploader('Choose the Job Application CSV file', type='csv')
 
-        # Reading the CSV file
-        uploaded_file = pd.read_csv(uploaded_file)
-
-    elif st.markdown('#### Upload Job Application CSV file or Load Sample Data'):
-
-        st.markdown('''This dashboard is designed to work exclusively with the Job Application data from LinkedIn. 
-                       \n To access your data, you will need to request an archive from LinkedIn by following the instructions 
-                       provided in this [link](https://www.linkedin.com/help/linkedin/answer/a1339364/downloading-your-account-data?lang=en).
-                       \n It usually takes approximately 24 hours to receive your data. However, in the interim, 
-                       you can experiment with the job application sample data that is readily available on the app. 
-                       Simply load the sample data by clicking on the "Load Sample Data" checkbox in the sidebar.''')
-
-    # When either data has been input
     if uploaded_file is not None:
+        # Reading the uploaded file
+        df = pd.read_csv(uploaded_file)
 
-        # Precessing the data
-        data = process_linkedin_job_app_data(uploaded_file)
+    # Show instructions if neither option is selected
+    if uploaded_file is None and not load_sample_data_checkbox:
+        st.markdown('''This dashboard works exclusively with job application data from LinkedIn.
+                       \n You can download your LinkedIn data by following the instructions in this 
+                       [link](https://www.linkedin.com/help/linkedin/answer/a1339364/downloading-your-account-data?lang=en).
+                       \n Once you have the file, you can upload it by selecting the "Choose the Job Application CSV file" option.''')
 
-        st.sidebar.subheader('Filter dates')
+    # Process data when uploaded
+    if uploaded_file is not None or load_sample_data_checkbox:
+
+        # Process the data
+        data = process_linkedin_job_app_data(df)
+
+        # Sidebar filters for date range
+        st.sidebar.subheader('Filter by Date')
 
         # Determining the earliest date in the data
         min_date = data['Date'].min().date()
 
+        # Sidebar date input
         start_date = st.sidebar.date_input("Select start date", value=min_date)
-        end_date = st.sidebar.date_input("Select end date")
+        end_date = st.sidebar.date_input("Select end date", value=data['Date'].max().date())
 
-        # Converting start_date and end_date to datetime objects
+        # Converting the selected dates to datetime objects
         start_date = datetime.datetime.combine(start_date, datetime.datetime.min.time())
         end_date = datetime.datetime.combine(end_date, datetime.datetime.max.time())
 
-        # Apply date filter to the data frame
+        # Apply the date filter
         filtered_data = data[(data['Date'] >= start_date) & (data['Date'] <= end_date)]
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
+        # Display Key Performance Indicators (KPIs)
         display_kpis(filtered_data)
+
+        # Display Top 10 Insights (Job roles and Companies)
         display_top_10_insights(filtered_data)
+
+        # Display trends (daily, weekly, monthly)
         display_daily_weekly_monthly_insights(filtered_data)
 
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-        # Adding a horizontal line
+        # Horizontal line and showing the filtered data
         st.write('---')
 
-        st.write("###### Data:")
+        st.write("###### Filtered Data:")
         st.write(filtered_data[['Date', 'Company Name', 'Job Title']])
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
