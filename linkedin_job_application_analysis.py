@@ -58,24 +58,23 @@ def display_kpis(data):
     st.write(f"###### Key metrics:")
 
     # a 3x3 grid the long way to display the KPIs
-    with st.container():
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            interview_calls_received = st.number_input('''Enter total jobs interviewed to calculate **Application Response Rate**:''', value=0, min_value=0)
-        with col2:
-            if total_jobs_applied > 0:
-                application_response_rate = round((interview_calls_received / total_jobs_applied) * 100, 2)
-                st.metric(f"**Application Response Rate:**", application_response_rate)
-        with col3:
-            st.metric(f"**Total Unique Companies Applied:**", unique_companies_applied)
-    with st.container():
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric(f"**Total Jobs Applied:**", total_jobs_applied)
-        with col2:
-            st.metric(f"**Average Jobs Applied Per Week:**", applications_per_week)
-        with col3:
-            st.metric(f"**Average Jobs Applied Per Month:**", applications_per_month)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        interview_calls_received = st.number_input('''Enter total jobs interviewed to calculate **Application Response Rate**:''', value=0, min_value=0)
+    with col2:
+        if total_jobs_applied > 0:
+            application_response_rate = round((interview_calls_received / total_jobs_applied) * 100, 2)
+            st.metric(f"**Application Response Rate:**", application_response_rate)
+    with col3:
+        st.metric(f"**Total Unique Companies Applied:**", unique_companies_applied)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(f"**Total Jobs Applied:**", total_jobs_applied)
+    with col2:
+        st.metric(f"**Average Jobs Applied Per Week:**", applications_per_week)
+    with col3:
+        st.metric(f"**Average Jobs Applied Per Month:**", applications_per_month)
 
     # Adding a horizontal line
     st.write('---')
@@ -86,7 +85,7 @@ def display_top_10_insights(data):
     #-----------------------------------------------------------------------------------------
     # Selecting the job roles and companies
     top_10_options = ['Top 10 Job Roles Applied', 'Top 10 Companies Applied']
-    selected_top_10_options = st.radio('###### Select an insight:', top_10_options, horizontal=True)
+    selected_top_10_options = st.radio('###### Select an insight:', top_10_options, horizontal=False)
 
     #-----------------------------------------------------------------------------------------
     # Displaying the selected options
@@ -160,7 +159,7 @@ def display_daily_weekly_monthly_insights(data):
     #-----------------------------------------------------------------------------------------
     # Selecting the insights
     daily_weekly_monthly_options = ['Daily Application Trend', 'Weekly Application Trend', 'Monthly Application Trend']
-    selected_daily_weekly_monthly_options = st.radio('###### Select an insight:', daily_weekly_monthly_options, horizontal=True)
+    selected_daily_weekly_monthly_options = st.radio('###### Select an insight:', daily_weekly_monthly_options, layout="horizontal")
 
     #-----------------------------------------------------------------------------------------
     # Displaying the selected options
@@ -176,7 +175,6 @@ def display_daily_weekly_monthly_insights(data):
         source = daily_jobs_applied
         x = 'Date'
         y = 'count'
-        # color = 'keywords'
         selector = alt.selection_single(encodings=['x', 'y'])
         hover = alt.selection_single(
             fields=[x],
@@ -189,7 +187,7 @@ def display_daily_weekly_monthly_insights(data):
             alt.Chart(source).mark_line(point="transparent").encode(
                 x=alt.X(x, title="Date", axis=alt.Axis(labelFontSize=15, titleFontSize=15)), 
                 y=alt.Y(y, title="Count of Applications sent", axis=alt.Axis(labelFontSize=15, titleFontSize=15))
-                ).transform_calculate(color='datum.delta < 0 ? "red" : "lightblue"') # doesn't show red for negative delta
+                ).transform_calculate(color='datum.delta < 0 ? "red" : "lightblue"')
         )
         points = (
             lines.transform_filter(hover).mark_circle(size=50).encode(
@@ -283,6 +281,3 @@ def display_daily_weekly_monthly_insights(data):
 
         # Displaying the chart
         st.altair_chart((monthly_application_chart + monthly_application_text), use_container_width=True)
-
-#------------------------------------------------------------------------------------------------------------------------------------------------
-
